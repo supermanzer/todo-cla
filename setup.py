@@ -5,19 +5,20 @@ with open('README.md','r') as ld:
 
 setuptools.setup(
     name = 'todo_catalog',
-    version = '0.1.4',
-    description='A command line application used to generate a TDOD.md file for a given project.'
+    version = '0.2.0',
+    description='A command line application used to generate a TODO.md file for a given project.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/supermanzer/tools',
+    url='https://github.com/supermanzer/todo-cla',
     author='C. Ryan Manzer',
     author_email='ryan.manzer@gmail.com',
-    py_modules = ['todo_catalog'],
+    packages = ['todo_catalog'],
     install_requires = [
         'Click',
+        'configparser',
     ],
     entry_points = '''
         [console_scripts]
-        todo_catalog=todo_catalog:find_todos
+        todo_catalog=todo_catalog.todo_catalog:find_todos
     '''
 )

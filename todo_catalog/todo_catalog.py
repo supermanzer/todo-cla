@@ -1,8 +1,27 @@
 # todo_catalog.py
 import click
+import configparser
 import os
 import sys
 import re
+
+def get_config(dir):
+  """
+  A function to parse the config file, if present.
+  """
+  result = {}
+  config = configparser.ConfigParser()
+
+  if os.path.isfile(os.path.join(dir,'config')):
+      config.read(os.path.join(dir,'config'))
+      if config.has_option('SETTINGS', 'file_ext'):
+        result['file_ext'] = [x.strip() for x in config['SETTINGS']['file_ext'].split(',')]
+      if config.has_option('SETTINGS', 'files_to_ignore'):
+        result['files_to_ignore'] = [x.strip() for x in config['SETTINGS']['files_to_ignore'].split(',')]
+      if config.has_option('SETTINGS','dirs_to_ignore'):
+        result['dirs_to_ignore'] = [x.strip() for x in config['SETTINGS']['dirs_to_ignore'].split(',')]
+
+  return result
 
 @click.command()
 @click.option('--dir', default=False, help='root directory')
@@ -22,7 +41,10 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
         dirs_to_ignore - An optional list of directory names to ignore when compiling TODO comments <- VERY USEFUL FOR THINGS LIKE node_modules/ DIRS.
 
     ALTERNATIVE:
-        If preferable, the file_ext, files_to_ignore, and dirs_to_ignore can be stored in files in the root directory. This function will check both visible and hidden (leading .) file names.
+        If preferable, the file_ext, files_to_ignore, and
+        dirs_to_ignore can be stored in files in the root
+        directory. This function will check both visible and hidden
+        (leading .) file names.
 
     EXAMPLE:
         todo_catalog --file_ext=('.py', '.js', '.css', '.html') --dirs_to_ignore = ['node_modules']
@@ -33,38 +55,22 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
     else:
         root = os.getcwd()
 
+    # Checking for and parsing our config file
+    conf = get_config(root)
+
      # File extensions we will pay attention to.  -- THIS SHOULD BE REFACTORED ONCE WE CAN VERIFY PROPER FUNCTIONAITY
     if not file_ext:
-        if os.path.isfile(os.path.join(root, 'file_ext')):
-            with open(os.path.join(root,'file_ext')) as f:
-                file_ext = f.readlines()
-                file_ext = [x.strip() for x in file_ext if x[0] !='#']
-        elif os.path.isfile(os.path.join(root, '.file_ext')):
-            with open(os.path.join(root,'.file_ext')) as f:
-                file_ext = f.readlines()
-                file_ext = [x.strip() for x in file_ext if x[0] !='#']
+        if hasattr(conf,'file_ext'):
+            file_ext = conf['file_ext']
         else:
-            file_ext = ('.py', '.txt', '.php', '.js', '.css')
+            file_ext = ('.py', '.txt', '.php', '.js', '.css', '.html')
 
     if not files_to_ignore:
-        if os.path.isfile(os.path.join(root, 'files_to_ignore')):
-            with open(os.path.join(root,'files_to_ignore')) as f:
-                files_to_ignore = f.readlines()
-                files_to_ignore = [x.strip() for x in files_to_ignore if x[0] !='#']
-        elif os.path.isfile(os.path.join(root, '.files_to_ignore')):
-            with open(os.path.join(root,'.files_to_ignore')) as f:
-                files_to_ignore = f.readlines()
-                files_to_ignore = [x.strip() for x in files_to_ignore if x[0] !='#']
-
+        if hasattr(conf,'files_to_ignore'):
+            files_to_ignore = conf['files_to_ignore']
     if not dirs_to_ignore:
-        if os.path.isfile(os.path.join(root, 'dirs_to_ignore')):
-            with open(os.path.join(root,'dirs_to_ignore')) as f:
-                dirs_to_ignore = f.readlines()
-                dirs_to_ignore = [x.strip() for x in dirs_to_ignore if x[0] !='#']
-        elif os.path.isfile(os.path.join(root, '.dirs_to_ignore')):
-            with open(os.path.join(root,'.dirs_to_ignore')) as f:
-                dirs_to_ignore = f.readlines()
-                dirs_to_ignore = [x.strip() for x in dirs_to_ignore if x[0] !='#']
+        if hasattr(conf, 'dirs_to_ignore'):
+          dirs_to_ignore = conf['dirs_to_ignore']
 
     #  Writing our TODO.md file
     td=open(os.path.join(root,'TODO.md'),'w+')
@@ -76,7 +82,12 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
         files[:] = [f for f in files if f not in files_to_ignore]
         for filename in files:
             if filename.endswith(file_ext):
-                # We dont need to confuse collaborators by including those portions of the project path that are specific to the machine on which this is run.  So we truncate the print_file variable to only include file paths relative to the root directory.
+                # We dont need to confuse collaborators by
+                # including those portions of the project path that
+                # are specific to the machine on which this is
+                # run.  So we truncate the print_file variable to
+                # only include file paths relative to the root
+                # directory.
                 print_file=os.path.join(dirname,filename)
                 print_file=print_file.replace(root+'/','')
                 with open(os.path.join(dirname,filename),'r') as f:
@@ -86,3 +97,8 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
                             out_text= "* #%i) %s line %i - %s \n" % (k,print_file,n,mObj.group(1))
                             td.write(out_text)
                             k+=1
+
+    # If we didn't find anything, we remove the file
+    if k == 1:
+      td.write('No TODO comments found within {}'.format(root))
+      print('No comments found.  If you think this is in error, check your configuration settings.')
