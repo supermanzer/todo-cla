@@ -38,7 +38,7 @@ class TodoTestCase(TestCase):
 
   def tearDown(self):
     os.remove('test_file.py')
-    # os.remove('TODO.md')
+    os.remove('TODO.md')
 
 
 if __name__ == '__main__':
