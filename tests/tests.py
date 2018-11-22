@@ -19,7 +19,7 @@ class TodoTestCase(TestCase):
     This test should pass
     """
     # Ensuring we call our program as we intend it, from the command line.
-    os.system('''todo_catalog --file_ext='.py' ''')
+    os.system('''todo_catalog --file_ext='.py' --files_to_ignore='todo_catalog.py, tests.py, setup.py' ''')
     self.assertTrue(os.path.isfile('TODO.md'))
     with open('TODO.md') as tdfile:
         self.assertTrue('This should be found' in tdfile.read())
@@ -28,7 +28,7 @@ class TodoTestCase(TestCase):
     """
     This test represents improperly configured parameters
     """
-    os.system('''todo_catalog --file_ext='.js' ''')
+    os.system('''todo_catalog --file_ext='.py' --files_to_ignore='todo_catalog.py, tests.py, setup.py' ''')
     # This will still be true
     self.assertTrue(os.path.isfile('TODO.md'))
     with open('TODO.md') as tdfile:
@@ -38,7 +38,7 @@ class TodoTestCase(TestCase):
 
   def tearDown(self):
     os.remove('test_file.py')
-    os.remove('TODO.md')
+    # os.remove('TODO.md')
 
 
 if __name__ == '__main__':

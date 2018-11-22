@@ -24,3 +24,4 @@ The project root directory, file extensions to be used in determining which file
 
 
 ####  Example Output
+    * #1) test_file.py line 1 - (test@example.com) This should be found 
