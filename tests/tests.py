@@ -28,7 +28,7 @@ class TodoTestCase(TestCase):
     """
     This test represents improperly configured parameters
     """
-    os.system('''todo_catalog --file_ext='.py' --files_to_ignore='todo_catalog.py, tests.py, setup.py' ''')
+    os.system('''todo_catalog --file_ext='.js' --files_to_ignore='todo_catalog.py, tests.py, setup.py' ''')
     # This will still be true
     self.assertTrue(os.path.isfile('TODO.md'))
     with open('TODO.md') as tdfile:
