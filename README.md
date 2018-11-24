@@ -8,8 +8,11 @@ This application is intended to facilitate communication between teams of develo
 
 The project root directory, file extensions to be used in determining which files to scan, which files to ignore, and directories to ignore can all be specified at the command line when calling the function.  Alternatively, if a config file is present in the root project directory, these parameters can be specified there.  A sample config file is incuded in this project.
 
-Users can clone this directory and install the module using
-    pip install -e .
+Users can clone this directory and install the module using the following command:
+
+     pip install -e .
+
+
 ----
 ### Examples
 
