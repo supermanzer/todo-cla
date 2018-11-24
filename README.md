@@ -8,6 +8,8 @@ This application is intended to facilitate communication between teams of develo
 
 The project root directory, file extensions to be used in determining which files to scan, which files to ignore, and directories to ignore can all be specified at the command line when calling the function.  Alternatively, if a config file is present in the root project directory, these parameters can be specified there.  A sample config file is incuded in this project.
 
+Users can clone this directory and install the module using
+    pip install -e .
 ----
 ### Examples
 
@@ -24,4 +26,8 @@ The project root directory, file extensions to be used in determining which file
 
 
 ####  Example Output
-    * #1) test_file.py line 1 - (test@example.com) This should be found 
+###### test_file.py contents
+    # TODO (test@example.com) This should be found
+
+###### Output to TODO.md
+    * #1) test_file.py line 1 - (test@example.com) This should be found
