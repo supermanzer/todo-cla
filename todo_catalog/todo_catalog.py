@@ -60,16 +60,17 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
 
      # File extensions we will pay attention to.  -- THIS SHOULD BE REFACTORED ONCE WE CAN VERIFY PROPER FUNCTIONAITY
     if not file_ext:
-        if hasattr(conf,'file_ext'):
+        if 'file_ext' in conf.keys():
             file_ext = conf['file_ext']
         else:
             file_ext = ('.py', '.txt', '.php', '.js', '.css', '.html')
 
     if not files_to_ignore:
-        if hasattr(conf,'files_to_ignore'):
+        if 'files_to_ignore' in conf.keys():
             files_to_ignore = conf['files_to_ignore']
+            
     if not dirs_to_ignore:
-        if hasattr(conf, 'dirs_to_ignore'):
+        if 'dirs_to_ignore' in conf.keys():
           dirs_to_ignore = conf['dirs_to_ignore']
 
     #  Writing our TODO.md file
@@ -81,7 +82,7 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
         dirs[:] = [d for d in dirs if d not in dirs_to_ignore]
         files[:] = [f for f in files if f not in files_to_ignore]
         for filename in files:
-            if filename.endswith(file_ext):
+            if filename.endswith(tuple(file_ext)):
                 # We dont need to confuse collaborators by
                 # including those portions of the project path that
                 # are specific to the machine on which this is
@@ -94,7 +95,7 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
                     for n, line in enumerate(f, 1):
                         if "TODO" in line:
                             mObj=re.match(r'.*TODO:*\s*(.*)',line)
-                            out_text= "* #%i) %s line %i - %s \n" % (k,print_file,n,mObj.group(1))
+                            out_text= "* %i) %s line %i - %s \n" % (k,print_file,n,mObj.group(1))
                             td.write(out_text)
                             k+=1
 
