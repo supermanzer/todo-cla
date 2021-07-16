@@ -79,18 +79,16 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
 
     # File extensions we will pay attention to.  -- THIS SHOULD BE REFACTORED ONCE WE CAN VERIFY PROPER FUNCTIONAITY
     if "file_ext" in conf.keys():
+        file_ext = conf["file_ext"]
+    else:
         if not file_ext:
-            file_ext = conf["file_ext"]
-        else:
             file_ext = (".py", ".txt", ".php", ".js", ".css", ".html")
 
     if "files_to_ignore" in conf.keys():
-        if not files_to_ignore:
-            files_to_ignore = conf["files_to_ignore"]
+        files_to_ignore = conf["files_to_ignore"]
 
     if "dirs_to_ignore" in conf.keys():
-        if not dirs_to_ignore:
-            dirs_to_ignore = conf["dirs_to_ignore"]
+        dirs_to_ignore = conf["dirs_to_ignore"]
 
     #  Writing our TODO.md file
     td = open(os.path.join(root, "TODO.md"), "w+")
