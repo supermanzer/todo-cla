@@ -90,40 +90,40 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
     if "dirs_to_ignore" in conf.keys():
         dirs_to_ignore = conf["dirs_to_ignore"]
 
-    #  Writing our TODO.md file
-    td = open(os.path.join(root, "TODO.md"), "w+")
+    #  Writing our TODO.md file - using context manager approach
+    with open(os.path.join(root, "TODO.md"), "w") as td:
 
-    # Walking our directory tree with a counter variable
-    k = 1
-    for (dirname, dirs, files) in os.walk(root, topdown=True):
-        dirs[:] = [d for d in dirs if d not in dirs_to_ignore]
-        files[:] = [f for f in files if f not in files_to_ignore]
-        for filename in files:
-            if filename.endswith(tuple(file_ext)):
-                # We dont need to confuse collaborators by
-                # including those portions of the project path that
-                # are specific to the machine on which this is
-                # run.  So we truncate the print_file variable to
-                # only include file paths relative to the root
-                # directory.
-                print_file = os.path.join(dirname, filename)
-                print_file = print_file.replace(root + "/", "")
-                with open(os.path.join(dirname, filename), "r") as f:
-                    for n, line in enumerate(f, 1):
-                        if "TODO" in line:
-                            mObj = re.match(r".*TODO:*\s*(.*)", line)
-                            out_text = "* %i) %s line %i - %s \n" % (
-                                k,
-                                print_file,
-                                n,
-                                mObj.group(1),
-                            )
-                            td.write(out_text)
-                            k += 1
+        # Walking our directory tree with a counter variable
+        k = 1
+        for (dirname, dirs, files) in os.walk(root, topdown=True):
+            dirs[:] = [d for d in dirs if d not in dirs_to_ignore]
+            files[:] = [f for f in files if f not in files_to_ignore]
+            for filename in files:
+                if filename.endswith(tuple(file_ext)):
+                    # We dont need to confuse collaborators by
+                    # including those portions of the project path that
+                    # are specific to the machine on which this is
+                    # run.  So we truncate the print_file variable to
+                    # only include file paths relative to the root
+                    # directory.
+                    print_file = os.path.join(dirname, filename)
+                    print_file = print_file.replace(root + "/", "")
+                    with open(os.path.join(dirname, filename), "r") as f:
+                        for n, line in enumerate(f, 1):
+                            if "TODO" in line:
+                                mObj = re.match(r".*TODO:*\s*(.*)", line)
+                                out_text = "* %i) %s line %i - %s \n" % (
+                                    k,
+                                    print_file,
+                                    n,
+                                    mObj.group(1),
+                                )
+                                td.write(out_text)
+                                k += 1
 
-    # If we didn't find anything, we remove the file
-    if k == 1:
-        td.write("No TODO comments found within {}".format(root))
-        print(
-            "No comments found.  If you think this is in error, check your configuration settings."
-        )
+        # If we didn't find anything, we remove the file
+        if k == 1:
+            td.write("No TODO comments found within {}".format(root))
+            print(
+                "No comments found.  If you think this is in error, check your configuration settings."
+            )

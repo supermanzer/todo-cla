@@ -5,7 +5,7 @@ with open("README.md", "r") as ld:
 
 setuptools.setup(
     name="todo_catalog",
-    version="0.2.4",
+    version="0.2.5",
     description="A command line application used to generate a TODO.md file for a given project.",
     long_description=long_description,
     long_description_content_type="text/markdown",
