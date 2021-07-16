@@ -1,6 +1,9 @@
 # Package specific files
 TODO.md
 
+# IDE Stuff
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
