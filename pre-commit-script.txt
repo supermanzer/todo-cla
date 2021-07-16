@@ -1,0 +1,7 @@
+# Coommands to trigger todo_catalog on pre-commit hook
+
+# run command in repo directory
+todo_catalog
+
+# Add resulting TODO.md to files to be committed.
+git add TODO.md
