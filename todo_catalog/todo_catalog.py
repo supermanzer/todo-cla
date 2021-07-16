@@ -65,9 +65,6 @@ def find_todos(dir, file_ext, files_to_ignore, dirs_to_ignore):
     EXAMPLE:
         todo_catalog --file_ext=('.py', '.js', '.css', '.html') --dirs_to_ignore = ['node_modules']
     """
-    import pdb
-
-    pdb.set_trace()
     # Checking to see if a directory was passed in
     if dir:
         root = dir
