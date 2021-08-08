@@ -1,0 +1,11 @@
+[DEFAULTS]
+# These settings mean the todo_catalog function will scan all files 
+# ending with these extensions
+file_ext = .py, .js, .css, .html 
+
+# This setting specifies files that will be ignored when looking for
+# TODO comments. 
+files_to_ignore = setup.py, setup.cfg
+
+# This setting specifies entire directories to be ignored
+dirs_to_ignore = tests, data

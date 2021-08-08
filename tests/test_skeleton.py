@@ -1,6 +1,6 @@
 import pytest
 
-from todo_catalog.skeleton import fib, main
+from todo_catalog.catalog import main
 
 __author__ = "Ryan"
 __copyright__ = "Ryan"
@@ -9,11 +9,6 @@ __license__ = "MIT"
 
 def test_fib():
     """API Tests"""
-    assert fib(1) == 1
-    assert fib(2) == 1
-    assert fib(7) == 13
-    with pytest.raises(AssertionError):
-        fib(-10)
 
 
 def test_main(capsys):

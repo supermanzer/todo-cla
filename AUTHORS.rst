@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Ryan <ryan.manzer@gmail.com>
+* Ryan <ryan@gensci.org>
