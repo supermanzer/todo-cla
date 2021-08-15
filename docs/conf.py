@@ -94,7 +94,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "todo_catalog"
-copyright = "2021, Ryan"
+copyright = "2021, Ryan Manzer"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

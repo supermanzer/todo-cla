@@ -1,23 +1,11 @@
 """
-This is a skeleton file that can serve as a starting point for a Python
-console script. To run this script uncomment the following lines in the
-``[options.entry_points]`` section in ``setup.cfg``::
+This module encapsulates all functionality necessary for running the todo_catalog operations.
 
-    console_scripts =
-         fibonacci = todo_catalog.skeleton:run
+Executing the fucntion is exposed to the command line via the ``get_todo`` call specifiied in 
+the ``[options.entry_points]`` section of ``setup.cfg``::
 
-Then run ``pip install .`` (or ``pip install -e .`` for editable mode)
-which will install the command ``fibonacci`` inside your current environment.
-
-Besides console scripts, the header (i.e. until ``_logger``...) of this file can
-also be used as template for Python modules.
-
-Note:
-    This skeleton file can be safely removed if not needed!
-
-References:
-    - https://setuptools.readthedocs.io/en/latest/userguide/entry_point.html
-    - https://pip.pypa.io/en/stable/reference/pip_install
+    console_scripts = 
+        get_todo = todo_catalog.catalog:run
 """
 
 import os
@@ -45,7 +33,7 @@ _logger = logging.getLogger(__name__)
 def get_config(args):
     """Return configuration parameters
 
-    If both args and a config file are detected, the arg values will take priority
+    If both args and a ``config`` file are detected, the arg values will take priority
 
     Args:
         args (argparse.Namespace): An argparse Namespace of args passed at runtime
@@ -63,7 +51,7 @@ def get_config(args):
         'files_to_ignore': [],
         'dirs_to_ignore': []
     }
-    # Assigning file-specified configurations
+    # Assigning file-specified configurations, if exists
     if os.path.isfile(os.path.join(args.dir, args.config)):
         conf = configparser.ConfigParser()
         conf.read(os.path.join(args.dir, args.config))
@@ -76,7 +64,7 @@ def get_config(args):
                                      for f in defaults.get('files_to_ignore', '').split(',') if f]
         result['dirs_to_ignore'] = [f.strip()
                                     for f in defaults.get('dirs_to_ignore', '').split(',') if f]
-    # Assinging command line args if provided. This also takes care of assigning values
+    # Assinging command line args if provided.
     result['file_ext'] = args.file_ext.split(
         ',') if args.file_ext else result['file_ext']
     result['files_to_ignore'] = args.files_to_ignore.split(
@@ -87,13 +75,16 @@ def get_config(args):
 
 
 def log_comment(td_file, file_name, line_n, comment):
-    """Log TODO comment in markdown file
+    """Log TODO comment in ``TODO.mds`` file
 
     Args:
         td_file (file_object): The markdown file open for writing
         file_name (str): A string indentifying the file in which the TODO comment was found
         line_n (int): Line number in file_name of TODO comment
         comment (str): The TODO comment text
+
+    Returns:
+        None: All results written to ``TODO.md``
     """
     template_str = "* 1. %s line %i - %s\n"
     text = template_str.format(file_name, line_n, comment)
@@ -209,7 +200,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def setup_logging(loglevel):
+def __setup_logging(loglevel):
     """Setup basic logging
 
     Args:
@@ -222,17 +213,17 @@ def setup_logging(loglevel):
 
 
 def main(args):
-    """Wrapper allowing :func:`fib` to be called with string arguments in a CLI fashion
+    """Wrapper allowing component functions to be called with string arguments in a CLI fashion
 
-    Instead of returning the value from :func:`fib`, it prints the result to the
-    ``stdout`` in a nicely formatted message.
+    Generates ``TODO.md`` file from TODO comments found in a project, based  on the configuration
+    parameters provided either by a ``config`` file (see
 
     Args:
       args (List[str]): command line parameters as list of strings
           (for example  ``["--verbose", "42"]``).
     """
     args = parse_args(args)
-    setup_logging(args.loglevel)
+    __setup_logging(args.loglevel)
     _logger.debug(args)
     config = get_config(args)
     _logger.debug(config)

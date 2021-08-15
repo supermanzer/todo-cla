@@ -27,5 +27,5 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           pip install --upgrade build
-          python -m builds
+          python -m build
           twine upload dist/*
