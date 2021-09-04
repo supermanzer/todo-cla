@@ -2,7 +2,7 @@
 todo_catalog
 ============
 
-This is the documentation of the **todo_catalog** Python package.
+This is the documentation of the **todo_catalog** Python package.  This project is intended to facilitate using TODO comments in software projects both for note taking for individual developers as well as a means of asynchronous collaboration between developers.
 
 Contents
 ========
