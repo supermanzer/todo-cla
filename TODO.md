@@ -30,12 +30,14 @@
 * 1. docsrc/_build/html/_static/jquery-3.5.1.js line 804 - identify versions
 * 1. docsrc/_build/html/_static/jquery-3.5.1.js line 4394 - Drop _data, _removeData)
 * 1. docsrc/_build/html/_static/jquery-3.5.1.js line 4462 - Now that all calls to _data and _removeData have been replaced
-* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 111 - .mds`` file</span>
-* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 115 - comment was found</span>
-* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 116 - comment</span>
-* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 117 - comment text</span>
-* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 120 - .md``</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 80 - (ryan@gensci.org) Split into separate functions</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 112 - .mds`` file</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 116 - comment was found</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 117 - comment</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 118 - comment text</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 121 - .md``</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 128 - comments</span>
+* 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 133 - (ryan@gensci.org) Figure out how to identify and ignore docstrings</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 134 - .md&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 148 - &quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 150 - *\s*(.*)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
