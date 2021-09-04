@@ -44,6 +44,7 @@ def get_config(args):
     Returns:
         dict: a dictionary of configuration parameters
     """
+    # TODO (ryan@gensci.org) Split into separate functions
     # Creating default return dict with iterables where needed
     result = {
         "root": args.dir,
@@ -65,12 +66,12 @@ def get_config(args):
         result['dirs_to_ignore'] = [f.strip()
                                     for f in defaults.get('dirs_to_ignore', '').split(',') if f]
     # Assinging command line args if provided.
-    result['file_ext'] = args.file_ext.split(
-        ',') if args.file_ext else result['file_ext']
-    result['files_to_ignore'] = args.files_to_ignore.split(
-        ',') if args.files_to_ignore else result['files_to_ignore']
-    result['dirs_to_ignore'] = args.dirs_to_ignore.split(
-        ',') if args.dirs_to_ignore else result['dirs_to_ignore']
+    result['file_ext'] = [s.strip() for s in args.file_ext.split(
+        ',')] if args.file_ext else result['file_ext']
+    result['files_to_ignore'] = [s.strip() for s in args.files_to_ignore.split(
+        ',')] if args.files_to_ignore else result['files_to_ignore']
+    result['dirs_to_ignore'] = [s.strip() for s in args.dirs_to_ignore.split(
+        ',')] if args.dirs_to_ignore else result['dirs_to_ignore']
     return result
 
 
@@ -86,8 +87,7 @@ def log_comment(td_file, file_name, line_n, comment):
     Returns:
         None: All results written to ``TODO.md``
     """
-    template_str = "* 1. %s line %i - %s\n"
-    text = template_str.format(file_name, line_n, comment)
+    text = f"* 1. {file_name} line {line_n} - {comment}\n"
     td_file.write(text)
 
 
@@ -97,7 +97,7 @@ def walk_dir(config):
     Args:
         config (dict): Configuration dictionary
     """
-
+    # TODO (ryan@gensci.org) Figure out how to identify and ignore docstrings
     with open(os.path.join(config['root'], 'TODO.md'), "w") as td:
         found = False
         for (root, dirs, files) in os.walk(config['root'], topdown=True):

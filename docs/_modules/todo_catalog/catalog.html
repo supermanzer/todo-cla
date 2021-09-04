@@ -77,6 +77,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: a dictionary of configuration parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO (ryan@gensci.org) Split into separate functions</span>
     <span class="c1"># Creating default return dict with iterables where needed</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span>
@@ -98,12 +99,12 @@
         <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                                     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="p">]</span>
     <span class="c1"># Assinging command line args if provided.</span>
-    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-        <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span>
-    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-        <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span>
-    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-        <span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -119,8 +120,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        None: All results written to ``TODO.md``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">template_str</span> <span class="o">=</span> <span class="s2">&quot;* 1. </span><span class="si">%s</span><span class="s2"> line </span><span class="si">%i</span><span class="s2"> - </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">template_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">line_n</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;* 1. </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> line </span><span class="si">{</span><span class="n">line_n</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
     <span class="n">td_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
 
@@ -130,7 +130,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        config (dict): Configuration dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="c1"># TODO (ryan@gensci.org) Figure out how to identify and ignore docstrings</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">],</span> <span class="s1">&#39;TODO.md&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">],</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -302,8 +302,7 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Description</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../readme.html#examples">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
@@ -342,7 +341,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2021, Ryan.
+      &copy;2021, Ryan Manzer.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
