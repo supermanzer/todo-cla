@@ -14,17 +14,21 @@
 * 1. docsrc/index.rst line 5 - comments in software projects both for note taking for individual developers as well as a means of asynchronous collaboration between developers.
 * 1. docsrc/_build/html/license.html line 19 - Catalog" href="readme.html" />
 * 1. docsrc/_build/html/license.html line 86 - Catalog</a></li>
-* 1. docsrc/_build/html/readme.html line 9 - Catalog &#8212; todo_catalog 0.1.1 documentation</title>
+* 1. docsrc/_build/html/readme.html line 9 - Catalog &#8212; todo_catalog 0.1.0 documentation</title>
+* 1. docsrc/_build/html/readme.html line 19 - Catalog" href="index.html" />
 * 1. docsrc/_build/html/readme.html line 37 - Catalog<a class="headerlink" href="#todo-catalog" title="Permalink to this headline">¶</a></h1>
 * 1. docsrc/_build/html/readme.html line 38 - comments in a software project.</p>
 * 1. docsrc/_build/html/readme.html line 43 - comments.</p>
 * 1. docsrc/_build/html/readme.html line 49 - comments. Defaults to current directory</p></li>
 * 1. docsrc/_build/html/readme.html line 77 - .md</span></code> file upon commit. It is helpful to keep track of where you might be in a project if you have to take a break.  Just add the following two lines of code to <code class="docutils literal notranslate"><span class="pre">.git/hooks/pre-commit</span></code>.  It can also be a useful place to specify parameters if you don’t want one more config file in your project.:</p>
 * 1. docsrc/_build/html/readme.html line 80 - .md file to the commit</span>
-* 1. docsrc/_build/html/searchindex.js line 1 - Catalog"],titleterms:{"0":3,"1":3,catalog:[1,6],changelog:3,content:[1,4],contributor:2,descript:6,exampl:6,indic:4,licens:5,modul:1,packag:1,paramet:6,submodul:1,tabl:4,todo:6,todo_catalog:[0,1,4],usag:6,version:3}})
+* 1. docsrc/_build/html/readme.html line 121 - Catalog</a></li>
+* 1. docsrc/_build/html/searchindex.js line 1 - Catalog"],titleterms:{"0":3,"1":3,catalog:[1,4,6],changelog:3,content:[1,4],contributor:2,descript:6,exampl:6,indic:4,instal:4,licens:5,modul:1,packag:1,paramet:6,submodul:1,tabl:4,todo:[4,6],todo_catalog:[0,1],usag:6,version:3}})
+* 1. docsrc/_build/html/index.html line 9 - Catalog &#8212; todo_catalog 0.1.0 documentation</title>
 * 1. docsrc/_build/html/index.html line 18 - Catalog" href="readme.html" />
+* 1. docsrc/_build/html/index.html line 36 - Catalog<a class="headerlink" href="#todo-catalog" title="Permalink to this headline">¶</a></h1>
 * 1. docsrc/_build/html/index.html line 37 - comments in software projects both for note taking for individual developers as well as a means of asynchronous collaboration between developers.</p>
-* 1. docsrc/_build/html/index.html line 101 - Catalog</a></li>
+* 1. docsrc/_build/html/index.html line 107 - Catalog</a></li>
 * 1. docsrc/_build/html/api/todo_catalog.html line 73 - .mds</span></code> file</p>
 * 1. docsrc/_build/html/api/todo_catalog.html line 78 - comment was found</p></li>
 * 1. docsrc/_build/html/api/todo_catalog.html line 79 - comment</p></li>

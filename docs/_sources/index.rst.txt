@@ -6,12 +6,12 @@ This is the documentation of the **todo-catalog** Python package.  This project 
 
 Installation
 ============
-
+This is a Python package published to the `Python Package Index <https://pypi.org/project/todo-catalog/>`. It can be installed using ``pip`` as seen below.
 .. code-block:: bash
 
    pip install todo-catalog
 
-   
+
 Contents
 ========
 
