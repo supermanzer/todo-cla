@@ -1,0 +1,21 @@
+todo\_catalog package
+=====================
+
+Submodules
+----------
+
+todo\_catalog.catalog module
+----------------------------
+
+.. automodule:: todo_catalog.catalog
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: todo_catalog
+   :members:
+   :undoc-members:
+   :show-inheritance:

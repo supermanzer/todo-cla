@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>todo_catalog.catalog &#8212; todo_catalog 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for todo_catalog.catalog</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module encapsulates all functionality necessary for running the todo_catalog operations.</span>
+
+<span class="sd">Executing the fucntion is exposed to the command line via the ``get_todo`` call specifiied in </span>
+<span class="sd">the ``[options.entry_points]`` section of ``setup.cfg``::</span>
+
+<span class="sd">    console_scripts = </span>
+<span class="sd">        get_todo = todo_catalog.catalog:run</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+
+<span class="kn">from</span> <span class="nn">todo_catalog</span> <span class="kn">import</span> <span class="n">__version__</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Ryan&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Ryan&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># ---- Python API ----</span>
+<span class="c1"># The functions defined in this section can be imported by users in their</span>
+<span class="c1"># Python scripts/interactive interpreter, e.g. via</span>
+<span class="c1"># `from todo_catalog.catalog import get_config`,</span>
+<span class="c1"># when using this Python module as a library.</span>
+
+<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return configuration parameters</span>
+
+<span class="sd">    If both args and a ``config`` file are detected, the arg values will take priority</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (argparse.Namespace): An argparse Namespace of args passed at runtime</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Exception if config file provided but no DEFAULTS section is present</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: a dictionary of configuration parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO (ryan@gensci.org) Split into separate functions</span>
+    <span class="c1"># Creating default return dict with iterables where needed</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span>
+        <span class="s1">&#39;file_ext&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;files_to_ignore&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+    <span class="c1"># Assigning file-specified configurations, if exists</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">)):</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="n">conf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;DEFAULTS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DEFAULTS section required if config file is provided.&quot;</span><span class="p">)</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;DEFAULTS&#39;</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                              <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;file_ext&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                                     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                                    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="p">]</span>
+    <span class="c1"># Assinging command line args if provided.</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file_ext</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">files_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+        <span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">dirs_to_ignore</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="log_comment"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.log_comment">[docs]</a><span class="k">def</span> <span class="nf">log_comment</span><span class="p">(</span><span class="n">td_file</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">line_n</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Log TODO comment in ``TODO.mds`` file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        td_file (file_object): The markdown file open for writing</span>
+<span class="sd">        file_name (str): A string indentifying the file in which the TODO comment was found</span>
+<span class="sd">        line_n (int): Line number in file_name of TODO comment</span>
+<span class="sd">        comment (str): The TODO comment text</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None: All results written to ``TODO.md``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;* 1. </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> line </span><span class="si">{</span><span class="n">line_n</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">td_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="walk_dir"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.walk_dir">[docs]</a><span class="k">def</span> <span class="nf">walk_dir</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Traverse directory to scan for TODO comments</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (dict): Configuration dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO (ryan@gensci.org) Figure out how to identify and ignore docstrings</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">],</span> <span class="s1">&#39;TODO.md&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">td</span><span class="p">:</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">],</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="c1"># Pruning the files and directories based on config</span>
+            <span class="n">dirs</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dirs_to_ignore&#39;</span><span class="p">]]</span>
+            <span class="n">files</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;files_to_ignore&#39;</span><span class="p">]]</span>
+            <span class="n">files</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;file_ext&#39;</span><span class="p">]))]</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="c1"># Generating useful file name with nested directories but</span>
+                <span class="c1"># without computer specific components (e.g /home/user)</span>
+                <span class="n">pfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">pfile</span> <span class="o">=</span> <span class="n">pfile</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="s2">&quot;TODO&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">comment</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*TODO:*\s*(.*)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="n">log_comment</span><span class="p">(</span><span class="n">td</span><span class="p">,</span> <span class="n">pfile</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">td</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# No TODO Comments found in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                No TODO comments found.</span>
+
+<span class="s2">                If you think this is incorrect, check configuration settings used.</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># ---- CLI ----</span>
+<span class="c1"># The functions defined in this section are wrappers around the main Python</span>
+<span class="c1"># API allowing them to be called directly from the terminal as a CLI</span>
+<span class="c1"># executable/script.</span>
+
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse command line parameters</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      args (List[str]): command line parameters as list of strings</span>
+<span class="sd">          (for example  ``[&quot;--help&quot;]``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      :obj:`argparse.Namespace`: command line parameters namespace</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Catalog TODO comments in project&quot;</span><span class="p">)</span>
+    <span class="c1"># -- Generic CLA args --</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--version&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;todo_catalog </span><span class="si">{ver}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ver</span><span class="o">=</span><span class="n">__version__</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;loglevel&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set loglevel to INFO&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-vv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--very-verbose&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;loglevel&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set loglevel to DEBUG&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># -- Application specific args --</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--dir&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Root directory for traversal. Defaults to current dir.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--file_ext&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File extensions to scan, defaults to .py&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-fi&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--files-to-ignore&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Files to ignore during scan&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-di&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--dirs-to-ignore&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directories to ignore during scan&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;todo_config&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify a config file name in the root directory&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">__setup_logging</span><span class="p">(</span><span class="n">loglevel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Setup basic logging</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      loglevel (int): minimum loglevel for emitting messages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logformat</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">] </span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(name)s</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">loglevel</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">logformat</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper allowing component functions to be called with string arguments in a CLI fashion</span>
+
+<span class="sd">    Generates ``TODO.md`` file from TODO comments found in a project, based  on the configuration</span>
+<span class="sd">    parameters provided either by a ``config`` file (see</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      args (List[str]): command line parameters as list of strings</span>
+<span class="sd">          (for example  ``[&quot;--verbose&quot;, &quot;42&quot;]``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">__setup_logging</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">loglevel</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">walk_dir</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../api/todo_catalog.html#todo_catalog.catalog.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Calls :func:`main` passing the CLI arguments extracted from :obj:`sys.argv`</span>
+
+<span class="sd">    This function can be used as entry point to create console scripts with setuptools.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># ^  This is a guard statement that will prevent the following code from</span>
+    <span class="c1">#    being executed in the case someone imports this file instead of</span>
+    <span class="c1">#    executing it as a script.</span>
+    <span class="c1">#    https://docs.python.org/3/library/__main__.html</span>
+
+    <span class="c1"># After installing your project with pip, users can also run your Python</span>
+    <span class="c1"># modules as scripts via the ``-m`` flag, as defined in PEP 338::</span>
+    <span class="c1">#</span>
+    <span class="c1">#     python -m todo_catalog.skeleton 42</span>
+    <span class="c1">#</span>
+    <span class="n">run</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">todo_catalog</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Module Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Ryan Manzer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
