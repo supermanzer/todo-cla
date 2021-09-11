@@ -1,4 +1,3 @@
-* 1. testfile.py line 1 - (test@example.com) this comment should be found
 * 1. docsrc/readme.rst line 4 - Catalog
 * 1. docsrc/readme.rst line 7 - comments in a software project.
 * 1. docsrc/readme.rst line 13 - comments.
@@ -45,12 +44,11 @@
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 157 - comments found.</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 179 - comments in project&quot;</span><span class="p">)</span>
 * 1. docsrc/_build/html/_modules/todo_catalog/catalog.html line 251 - comments found in a project, based  on the configuration</span>
-* 1. tests/test_todo_catalog.py line 9 - (test@example.com) this comment should be found'
-* 1. tests/test_todo_catalog.py line 15 - _COMMENT)
-* 1. tests/test_todo_catalog.py line 22 - .md')
-* 1. tests/test_todo_catalog.py line 30 - .md')
-* 1. tests/test_todo_catalog.py line 32 - .md') as f:
-* 1. tests/test_todo_catalog.py line 33 - _COMMENT in f.read()
+* 1. tests/test_todo_catalog.py line 10 - (test@example.com) {COMMENT}'
+* 1. tests/test_todo_catalog.py line 16 - _COMMENT)
+* 1. tests/test_todo_catalog.py line 23 - .md')
+* 1. tests/test_todo_catalog.py line 32 - .md')
+* 1. tests/test_todo_catalog.py line 34 - .md') as f:
 * 1. src/todo_catalog/catalog.py line 47 - (ryan@gensci.org) Split into separate functions
 * 1. src/todo_catalog/catalog.py line 79 - .mds`` file
 * 1. src/todo_catalog/catalog.py line 83 - comment was found

@@ -6,7 +6,8 @@ __author__ = "Ryan Manzer"
 __copyright__ = "2021 Ryan Manzer"
 __license__ = "MIT"
 
-TODO_COMMENT = '# TODO (test@example.com) this comment should be found'
+COMMENT = 'this comment should be found'
+TODO_COMMENT = f'# TODO (test@example.com) {COMMENT}'
 
 
 def make_file(filename):
@@ -23,13 +24,16 @@ def remove_file(filename):
 
 
 def test_todo_found():
-    make_file('testfile.py')
+    filename = 'testfile.py'
+    make_file(filename)
 
-    os.system('get_todo -f ".py" -fi "setup.py"')
+    os.system('get_todo -f ".py" -fi "setup.py" -di ".tox, .venv"')
 
     assert os.path.isfile('TODO.md')
 
     with open('TODO.md') as f:
-        assert TODO_COMMENT in f.read()
+        assert COMMENT in f.read()
+        for line in f:
+            assert '.py' in line
 
-    remove_file()
+    remove_file(filename)
